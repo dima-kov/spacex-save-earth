@@ -1,0 +1,23 @@
+{
+  "name": "space-x-save-earth",
+  "version": "1.0.0",
+  "description": "Simple 2d game",
+  "main": "script.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/dima-kov/spacex-save-earth.git"
+  },
+  "author": "Dima Kovalchuk",
+  "license": "BSD",
+  "bugs": {
+    "url": "https://github.com/dima-kov/spacex-save-earth/issues"
+  },
+  "homepage": "https://github.com/dima-kov/spacex-save-earth#readme",
+  "devDependencies": {
+    "browser-sync": "^2.18.13",
+    "gulp": "^3.9.1"
+  }
+}
