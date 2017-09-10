@@ -42,6 +42,7 @@ var bullets = []
 var bulletSpeed = 5;
 var bulletWidth = 15;
 
+var score = 0;
 
 rocketImage.src = 'images/rocket.png';
 fireImage.src = 'images/fire.png';
@@ -161,6 +162,7 @@ function checkAsteroidCollisions() {
             if (collRight && collBottom && collLeft) {
                 asteroids.splice(i, 1);
                 bullets.splice(j, 1);
+                score += 1;
                 if (asteroids.length < 3) {
                     createAsteroid();
                 }
@@ -214,12 +216,20 @@ function drawEarth() {
     ctx.fill();
     ctx.stroke();
 }
+
+function drawScore() {
+    ctx.font = "16px Arial";
+    ctx.fillStyle = "#0095DD";
+    ctx.fillText("Score: "+score, 15, 25);
+}
+
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawEarth();
     drawRocket();
     drawAsteroids();
     drawBullets();
+    drawScore();
 }
 
 var gameInterval;
