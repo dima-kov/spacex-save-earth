@@ -8,13 +8,16 @@ var ctx = canvas.getContext("2d");
 var rocketImage = new Image();
 var earthImage = new Image();
 var fireImage = new Image();
+var skyImage = new Image();
+var asteroidImage = new Image();
+
 var rocketWidth = 60;
 var rocketHeight = 60;
 
 var earthWidth = canvas.width;
 var earthHeight = 100;
 var rocketX = (canvas.width - rocketWidth) / 2;
-var rocketY = canvas.height - earthHeight - rocketHeight;
+var rocketY = canvas.height - earthHeight - rocketHeight + 80;
 var earthX = 0;
 var earthY = canvas.height - earthHeight;
 
@@ -35,7 +38,8 @@ var rocketMoveY = 0;
 var rocketMoveX = 0;
 
 var asteroids = [];
-var asteroidRadius = 20;
+var asteroidWidth = 40;
+var asteroidHeight = 46;
 var asteroidSpeedMin = 0.1;
 var asteroidSpeedMax = 1;
 
@@ -47,6 +51,9 @@ var score = 0;
 
 rocketImage.src = 'images/rocket.png';
 fireImage.src = 'images/fire.png';
+skyImage.src = 'images/star-sky.jpg';
+asteroidImage.src = 'images/asteroid.png';
+earthImage.src = 'images/surface.png';
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -91,7 +98,7 @@ function keyUpHandler(e) {
 function collisionWithEarth(){
     var left = rocketX + rocketMoveX + rocketWidth > earthX;
     var right = rocketX + rocketMoveX < earthX + earthWidth;
-    var top = rocketY + rocketHeight + rocketMoveY - 20 > earthY;
+    var top = rocketY + rocketHeight + rocketMoveY - 80 > earthY;
     if (left && right && top) {
         return true;
     }
@@ -139,15 +146,13 @@ function checkAsteroidCollisions() {
         asteroidX = asteroids[i].x;
         asteroidY = asteroids[i].y;
         if (asteroidY >= earthY) {
-            // asteroids.splice(i, 1);
             game('stop');
         }
-        collTop = asteroidY + asteroidRadius > rocketY;
-        collRight = asteroidX - asteroidRadius < rocketX + rocketWidth;
-        collBottom = asteroidY - asteroidRadius < rocketY + rocketHeight;
-        collLeft = asteroidX + asteroidRadius > rocketX;
+        collTop = asteroidY + asteroidHeight > rocketY;
+        collRight = asteroidX < rocketX + rocketWidth;
+        collBottom = asteroidY - asteroidHeight < rocketY + rocketHeight;
+        collLeft = asteroidX + asteroidWidth > rocketX;
         if (collLeft && collRight && collBottom && collTop) {
-            // asteroids.splice(i, 1);
             game('stop');
         }
 
@@ -155,9 +160,9 @@ function checkAsteroidCollisions() {
             bulletX = bullets[j].x;
             bulletY = bullets[j].y;
 
-            collRight = bulletX <= asteroidX + asteroidRadius;
-            collBottom = bulletY < asteroidY + asteroidRadius;
-            collLeft = bulletX + bulletWidth >= asteroidX - asteroidRadius;
+            collRight = bulletX <= asteroidX + asteroidWidth;
+            collBottom = bulletY < asteroidY + asteroidHeight;
+            collLeft = bulletX + bulletWidth >= asteroidX;
             if (collRight && collBottom && collLeft) {
                 asteroids.splice(i, 1);
                 bullets.splice(j, 1);
@@ -176,9 +181,7 @@ function drawAsteroids() {
     for (var i = asteroids.length - 1; i >= 0; i--) {
         ctx.beginPath();
         asteroids[i].y += asteroidSpeed();
-        ctx.arc(asteroids[i].x, asteroids[i].y, asteroidRadius, 0, Math.PI*2);
-        ctx.fillStyle = "#0095DD";
-        ctx.fill();
+        ctx.drawImage(asteroidImage, asteroids[i].x, asteroids[i].y)
         ctx.closePath();
     }
     checkAsteroidCollisions();
@@ -212,20 +215,24 @@ function fire() {
 
 function drawEarth() {
     ctx.beginPath();
-    ctx.rect(earthX, earthY, earthWidth, earthHeight);
-    ctx.fillStyle = 'green';
-    ctx.fill();
-    ctx.stroke();
+    ctx.drawImage(earthImage, earthX, earthY)
 }
 
 function drawScore() {
-    ctx.font = "16px Arial";
-    ctx.fillStyle = "#0095DD";
-    ctx.fillText("Score: "+score, 15, 25);
+    ctx.font = "18px Arial";
+    ctx.fillStyle = "white";
+    ctx.fillText("Score: "+ score, 25, 40);
+}
+
+function drawSky() {
+    ctx.beginPath();
+    ctx.drawImage(skyImage, 0, 0);
+    ctx.closePath();
 }
 
 function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
+    drawSky();
     drawEarth();
     drawRocket();
     drawAsteroids();
