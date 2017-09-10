@@ -27,21 +27,28 @@ var key = {
     RIGHT: 39,
     DOWN: 40,
 }
-var speed = 2;
-
-
+var rocketSpeed = 2;
 var rocketMoveY = 0;
 var rocketMoveX = 0;
 
+var asteroids = [];
+var asteroidRadius = 20;
+var asteroidSpeed = 0.5;
 
 rocketImage.addEventListener('load', drawRocket(), false);
 rocketImage.src = 'images/rocket.png';
 
-earthImage.addEventListener('load', drawEarth(), false);
-earthImage.src = 'images/earth.png';
+// earthImage.addEventListener('load', drawEarth(), false);
+// earthImage.src = 'images/earth.png';
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
+
+function getRandomInt(min, max) {
+    min = Math.ceil(min);
+    max = Math.floor(max);
+    return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+}
 
 function keyDownHandler(e) {
     if(e.keyCode == key.RIGHT) {
@@ -86,17 +93,17 @@ function collisionWithEarth(){
 function trackKeys() {
     rocketMoveX = 0;
     rocketMoveY = 0;
-    if (rightPressed && rocketX + speed < canvas.width - rocketWidth) {
-        rocketMoveX += speed
+    if (rightPressed && rocketX + rocketSpeed < canvas.width - rocketWidth) {
+        rocketMoveX += rocketSpeed
     }
-    else if(leftPressed && rocketX - speed > 0) {
-        rocketMoveX -= speed
+    else if(leftPressed && rocketX - rocketSpeed > 0) {
+        rocketMoveX -= rocketSpeed
     }
-    if(upPressed && rocketY - speed > 0) {
-        rocketMoveY -= speed
+    if(upPressed && rocketY - rocketSpeed > 0) {
+        rocketMoveY -= rocketSpeed
     }
-    else if(downPressed && rocketY + speed < canvas.height - rocketHeight) {
-        rocketMoveY += speed
+    else if(downPressed && rocketY + rocketSpeed < canvas.height - rocketHeight) {
+        rocketMoveY += rocketSpeed
     }
 }
 
@@ -107,6 +114,27 @@ function drawRocket() {
         rocketY += rocketMoveY;
     }
     ctx.drawImage(rocketImage, rocketX, rocketY);
+}
+
+
+function createAsteroid() {
+    x =  getRandomInt(100, canvas.width - 100);
+    y =  0;
+    asteroids.push({
+        x: x,
+        y: y,
+    })
+}
+
+function drawAsteroids() {
+    for (var i = asteroids.length - 1; i >= 0; i--) {
+        ctx.beginPath();
+        asteroids[i].y += asteroidSpeed;
+        ctx.arc(asteroids[i].x, asteroids[i].y, asteroidRadius, 0, Math.PI*2);
+        ctx.fillStyle = "#0095DD";
+        ctx.fill();
+        ctx.closePath();
+    }
 }
 
 function drawEarth() {
@@ -120,6 +148,8 @@ function draw() {
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawEarth();
     drawRocket();
+    drawAsteroids();
 }
 
 setInterval(draw, 10);
+setInterval(createAsteroid, 2000);
