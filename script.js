@@ -1,11 +1,13 @@
 var canvas = document.getElementById("spacex");
-canvas.width = window.innerWidth;
-canvas.height = window.innerHeight;
+
+canvas.width = 800;
+canvas.height = 600;
 
 var ctx = canvas.getContext("2d");
 
 var rocketImage = new Image();
 var earthImage = new Image();
+var fireImage = new Image();
 var rocketWidth = 60;
 var rocketHeight = 60;
 
@@ -22,12 +24,13 @@ var leftPressed = false;
 var upPressed = false;
 var downPressed = false;
 var key = {
+    SPACE: 32,
     LEFT: 37,
     UP: 38,
     RIGHT: 39,
     DOWN: 40,
 }
-var rocketSpeed = 2;
+var rocketSpeed = 4;
 var rocketMoveY = 0;
 var rocketMoveX = 0;
 
@@ -35,11 +38,13 @@ var asteroids = [];
 var asteroidRadius = 20;
 var asteroidSpeed = 0.5;
 
-rocketImage.addEventListener('load', drawRocket(), false);
-rocketImage.src = 'images/rocket.png';
+var bullets = []
+var bulletSpeed = 5;
+var bulletWidth = 15;
 
-// earthImage.addEventListener('load', drawEarth(), false);
-// earthImage.src = 'images/earth.png';
+
+rocketImage.src = 'images/rocket.png';
+fireImage.src = 'images/fire.png';
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -62,6 +67,9 @@ function keyDownHandler(e) {
     }
     else if(e.keyCode == key.DOWN) {
         downPressed = true;
+    }
+    if (e.keyCode == key.SPACE) {
+        fire();
     }
 }
 function keyUpHandler(e) {
@@ -134,14 +142,29 @@ function checkAsteroidCollisions() {
             // asteroids.splice(i, 1);
             game('stop');
         }
-        collLeft = asteroidX + asteroidRadius > rocketX;
+        collTop = asteroidY + asteroidRadius > rocketY;
         collRight = asteroidX - asteroidRadius < rocketX + rocketWidth;
         collBottom = asteroidY - asteroidRadius < rocketY + rocketHeight;
-        collTop = asteroidY + asteroidRadius > rocketY;
-        console.log(collLeft, collRight, collBottom, collTop)
+        collLeft = asteroidX + asteroidRadius > rocketX;
         if (collLeft && collRight && collBottom && collTop) {
             // asteroids.splice(i, 1);
             game('stop');
+        }
+
+        for (var j = bullets.length - 1; j >= 0; j--) {
+            bulletX = bullets[j].x;
+            bulletY = bullets[j].y;
+
+            collRight = bulletX <= asteroidX + asteroidRadius;
+            collBottom = bulletY < asteroidY + asteroidRadius;
+            collLeft = bulletX + bulletWidth >= asteroidX - asteroidRadius;
+            if (collRight && collBottom && collLeft) {
+                asteroids.splice(i, 1);
+                bullets.splice(j, 1);
+                if (asteroids.length < 3) {
+                    createAsteroid();
+                }
+            }
         }
     }
 }
@@ -153,8 +176,34 @@ function drawAsteroids() {
         ctx.arc(asteroids[i].x, asteroids[i].y, asteroidRadius, 0, Math.PI*2);
         ctx.fillStyle = "#0095DD";
         ctx.fill();
-        checkAsteroidCollisions();
         ctx.closePath();
+    }
+    checkAsteroidCollisions();
+}
+
+function createBullet(x, y) {
+    bullets.push({
+        x:x,
+        y:y,
+    });
+}
+
+function drawBullets() {
+    for (var i = bullets.length - 1; i >= 0; i--) {
+        ctx.beginPath();
+        bullets[i].y -= bulletSpeed;
+        ctx.drawImage(fireImage, bullets[i].x - bulletWidth/2, bullets[i].y - 25);
+        ctx.closePath();
+    }
+}
+
+var lastFire;
+function fire() {
+    var date = new Date();
+    currentTime = date.getTime();
+    if (!lastFire || currentTime - lastFire > 200) {
+        createBullet(rocketX + rocketWidth/4, rocketY);
+        lastFire = currentTime;
     }
 }
 
@@ -170,6 +219,7 @@ function draw() {
     drawEarth();
     drawRocket();
     drawAsteroids();
+    drawBullets();
 }
 
 var gameInterval;
