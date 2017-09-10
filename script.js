@@ -11,6 +11,10 @@ var fireImage = new Image();
 var skyImage = new Image();
 var asteroidImage = new Image();
 
+var gameSound = new Audio("sounds/music.mp3");
+var fireSound = new Audio("sounds/fire.wav");
+var explosionSound = new Audio("sounds/explosion.wav");
+var collisionSound = new Audio("sounds/collision.mp3");
 var rocketWidth = 60;
 var rocketHeight = 60;
 
@@ -146,6 +150,7 @@ function checkAsteroidCollisions() {
         asteroidX = asteroids[i].x;
         asteroidY = asteroids[i].y;
         if (asteroidY >= earthY) {
+            collisionSound.play();
             game('stop');
         }
         collTop = asteroidY + asteroidHeight > rocketY;
@@ -153,6 +158,7 @@ function checkAsteroidCollisions() {
         collBottom = asteroidY - asteroidHeight < rocketY + rocketHeight;
         collLeft = asteroidX + asteroidWidth > rocketX;
         if (collLeft && collRight && collBottom && collTop) {
+            collisionSound.play();
             game('stop');
         }
 
@@ -167,6 +173,7 @@ function checkAsteroidCollisions() {
                 asteroids.splice(i, 1);
                 bullets.splice(j, 1);
                 score += 1;
+                explosionSound.play();
                 if (asteroids.length < 3) {
                     createAsteroid();
                 }
@@ -210,6 +217,7 @@ function fire() {
     if (!lastFire || currentTime - lastFire > 200) {
         createBullet(rocketX + rocketWidth/4, rocketY);
         lastFire = currentTime;
+        fireSound.play();
     }
 }
 
@@ -243,6 +251,7 @@ function draw() {
 var gameInterval;
 function game(mode='start') {
     if (mode == 'start') {
+        gameSound.play();
         gameInterval = setInterval(draw, 10);
     }
     else if (mode == 'stop') {
