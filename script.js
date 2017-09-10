@@ -126,6 +126,26 @@ function createAsteroid() {
     })
 }
 
+function checkAsteroidCollisions() {
+    for (var i = asteroids.length - 1; i >= 0; i--) {
+        asteroidX = asteroids[i].x;
+        asteroidY = asteroids[i].y;
+        if (asteroidY >= earthY) {
+            // asteroids.splice(i, 1);
+            game('stop');
+        }
+        collLeft = asteroidX + asteroidRadius > rocketX;
+        collRight = asteroidX - asteroidRadius < rocketX + rocketWidth;
+        collBottom = asteroidY - asteroidRadius < rocketY + rocketHeight;
+        collTop = asteroidY + asteroidRadius > rocketY;
+        console.log(collLeft, collRight, collBottom, collTop)
+        if (collLeft && collRight && collBottom && collTop) {
+            // asteroids.splice(i, 1);
+            game('stop');
+        }
+    }
+}
+
 function drawAsteroids() {
     for (var i = asteroids.length - 1; i >= 0; i--) {
         ctx.beginPath();
@@ -133,6 +153,7 @@ function drawAsteroids() {
         ctx.arc(asteroids[i].x, asteroids[i].y, asteroidRadius, 0, Math.PI*2);
         ctx.fillStyle = "#0095DD";
         ctx.fill();
+        checkAsteroidCollisions();
         ctx.closePath();
     }
 }
@@ -151,5 +172,15 @@ function draw() {
     drawAsteroids();
 }
 
-setInterval(draw, 10);
+var gameInterval;
+function game(mode='start') {
+    if (mode == 'start') {
+        gameInterval = setInterval(draw, 10);
+    }
+    else if (mode == 'stop') {
+        clearInterval(gameInterval);
+    }
+}
+
+game();
 setInterval(createAsteroid, 2000);
