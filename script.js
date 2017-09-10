@@ -36,7 +36,8 @@ var rocketMoveX = 0;
 
 var asteroids = [];
 var asteroidRadius = 20;
-var asteroidSpeed = 0.5;
+var asteroidSpeedMin = 0.1;
+var asteroidSpeedMax = 1;
 
 var bullets = []
 var bulletSpeed = 5;
@@ -51,9 +52,7 @@ document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
 
 function getRandomInt(min, max) {
-    min = Math.ceil(min);
-    max = Math.floor(max);
-    return Math.floor(Math.random() * (max - min)) + min; //The maximum is exclusive and the minimum is inclusive
+    return Math.random() * (max - min) + min;
 }
 
 function keyDownHandler(e) {
@@ -170,11 +169,13 @@ function checkAsteroidCollisions() {
         }
     }
 }
-
+function asteroidSpeed() {
+    return getRandomInt(asteroidSpeedMin, asteroidSpeedMax)
+}
 function drawAsteroids() {
     for (var i = asteroids.length - 1; i >= 0; i--) {
         ctx.beginPath();
-        asteroids[i].y += asteroidSpeed;
+        asteroids[i].y += asteroidSpeed();
         ctx.arc(asteroids[i].x, asteroids[i].y, asteroidRadius, 0, Math.PI*2);
         ctx.fillStyle = "#0095DD";
         ctx.fill();
