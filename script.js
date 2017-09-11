@@ -52,6 +52,7 @@ var bulletSpeed = 5;
 var bulletWidth = 15;
 
 var score = 0;
+var winScore = 50;
 
 var rocketImageLoaded = false;
 var fireImageLoaded = false;
@@ -110,7 +111,7 @@ function keyDownHandler(e) {
         if (gameMode == 'play') {
             fire();
         }
-        else {
+        else if (gameMode == undefined){
             game();
         }
     }
@@ -183,7 +184,7 @@ function checkAsteroidCollisions() {
         asteroidY = asteroids[i].y;
         if (asteroidY >= earthY) {
             collisionSound.play();
-            game('stop');
+            game('fail');
         }
         collTop = asteroidY + asteroidHeight > rocketY;
         collRight = asteroidX < rocketX + rocketWidth;
@@ -191,7 +192,7 @@ function checkAsteroidCollisions() {
         collLeft = asteroidX + asteroidWidth > rocketX;
         if (collLeft && collRight && collBottom && collTop) {
             collisionSound.play();
-            game('stop');
+            game('fail');
         }
 
         for (var j = bullets.length - 1; j >= 0; j--) {
@@ -205,6 +206,9 @@ function checkAsteroidCollisions() {
                 asteroids.splice(i, 1);
                 bullets.splice(j, 1);
                 score += 1;
+                if (score == winScore) {
+                    game('win');
+                }
                 explosionSound.play();
                 if (asteroids.length < 3) {
                     createAsteroid();
@@ -271,7 +275,6 @@ function drawSky() {
 }
 
 function draw() {
-    console.log('draw');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawSky();
     drawEarth();
@@ -282,17 +285,28 @@ function draw() {
 }
 
 var gameInterval;
+var asteroidsInterval;
 var gameMode = undefined;
 function game(mode='start') {
     if (mode == 'start') {
         gameMode = 'play';
         gameSound.play();
         gameInterval = setInterval(draw, 10);
-        setInterval(createAsteroid, 2000);
+        asteroidsInterval = setInterval(createAsteroid, 2000);
     }
-    else if (mode == 'stop') {
+    else if (mode == 'fail') {
         gameMode = 'stop';
         clearInterval(gameInterval);
+        clearInterval(asteroidsInterval);
+        gameFail();
+        stopSound();
+    }
+    else if (mode == 'win') {
+        gameMode = 'stop';
+        clearInterval(gameInterval);
+        clearInterval(asteroidsInterval);
+        gameWin();
+        stopSound();
     }
 }
 
@@ -318,4 +332,43 @@ function gamePreStart() {
     ctx.font = "20px Arial";
     ctx.fillText("Press spacebar to start", canvas.width / 2.7, canvas.height / 1.25);
     ctx.closePath();
+}
+
+function gameWin() {
+    ctx.beginPath();
+    ctx.fillStyle = "rgba(251, 250, 248, 0.55)";
+    ctx.rect(0,0, 800, 600);
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.font = "38px Arial";
+    ctx.fillStyle = "black";
+    ctx.fillText("Congratulations!", canvas.width / 3, canvas.height / 4);
+    ctx.fillText("You Won!", canvas.width / 2.4, canvas.height / 3);
+
+    ctx.font = "24px Arial";
+    ctx.fillText("Press CTRL+R to try again", canvas.width / 3, canvas.height / 1.3);
+    ctx.closePath();
+}
+
+function gameFail() {
+    ctx.beginPath();
+    ctx.fillStyle = "rgba(251, 250, 248, 0.55)";
+    ctx.rect(0,0, 800, 600);
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.font = "38px Arial";
+    ctx.fillStyle = "black";
+    ctx.fillText("You Fail!", canvas.width / 2.4, canvas.height / 3);
+
+    ctx.font = "24px Arial";
+    ctx.fillText("Press CTRL+R to try again", canvas.width / 3, canvas.height / 1.3);
+    ctx.closePath();
+}
+
+function stopSound() {
+    gameSound.pause();
 }
