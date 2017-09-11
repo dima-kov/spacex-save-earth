@@ -53,11 +53,38 @@ var bulletWidth = 15;
 
 var score = 0;
 
+var rocketImageLoaded = false;
+var fireImageLoaded = false;
+var skyImageLoaded = false;
+var asteroidImageLoaded = false;
+var earthImageLoaded = false;
+var imagesLoaded = false;
+
 rocketImage.src = 'images/rocket.png';
+rocketImage.onload = function () {
+    console.log('loadded rocket!'), rocketImageLoaded = true}
+
+fireImage.onload = function () {fireImageLoaded = true}
 fireImage.src = 'images/fire.png';
+
+skyImage.onload = function () {skyImageLoaded = true}
 skyImage.src = 'images/star-sky.jpg';
+
+asteroidImage.onload = function () {asteroidImageLoaded = true}
 asteroidImage.src = 'images/asteroid.png';
+
+earthImage.onload = function () {earthImageLoaded = true}
 earthImage.src = 'images/surface.png';
+
+
+function loadImages() {
+    if (rocketImageLoaded && fireImageLoaded && skyImageLoaded && asteroidImageLoaded && earthImageLoaded) {
+        gamePreStart();
+        clearInterval(loadImagesInterval);
+    }
+}
+var loadImagesInterval = setInterval(loadImages, 10);
+
 
 document.addEventListener("keydown", keyDownHandler, false);
 document.addEventListener("keyup", keyUpHandler, false);
@@ -80,7 +107,12 @@ function keyDownHandler(e) {
         downPressed = true;
     }
     if (e.keyCode == key.SPACE) {
-        fire();
+        if (gameMode == 'play') {
+            fire();
+        }
+        else {
+            game();
+        }
     }
 }
 function keyUpHandler(e) {
@@ -239,6 +271,7 @@ function drawSky() {
 }
 
 function draw() {
+    console.log('draw');
     ctx.clearRect(0, 0, canvas.width, canvas.height);
     drawSky();
     drawEarth();
@@ -249,15 +282,40 @@ function draw() {
 }
 
 var gameInterval;
+var gameMode = undefined;
 function game(mode='start') {
     if (mode == 'start') {
+        gameMode = 'play';
         gameSound.play();
         gameInterval = setInterval(draw, 10);
+        setInterval(createAsteroid, 2000);
     }
     else if (mode == 'stop') {
+        gameMode = 'stop';
         clearInterval(gameInterval);
     }
 }
 
-game();
-setInterval(createAsteroid, 2000);
+function gamePreStart() {
+    draw();
+    ctx.beginPath();
+    ctx.fillStyle = "rgba(251, 250, 248, 0.55)";
+    ctx.rect(0,0, 800, 600);
+    ctx.fill();
+    ctx.closePath();
+
+    ctx.beginPath();
+    ctx.font = "34px Arial";
+    ctx.fillStyle = "black";
+    ctx.fillText("Save Earth", canvas.width / 2.8, canvas.height / 5);
+    ctx.font = "24px Arial";
+    ctx.fillText("You should save the planet from asteroids.", canvas.width / 5, canvas.height / 3.8);
+    ctx.fillText("Use controls (UP, DOWN, RIGHT and LEFT) to move ", canvas.width / 9, canvas.height / 2.1);
+    ctx.fillText("and SPACEBAR to fire.", canvas.width / 3, canvas.height / 1.85);
+
+    ctx.fillText("You need to get 50 score points to win!", canvas.width / 4.3, canvas.height / 1.4);
+
+    ctx.font = "20px Arial";
+    ctx.fillText("Press spacebar to start", canvas.width / 2.7, canvas.height / 1.25);
+    ctx.closePath();
+}
